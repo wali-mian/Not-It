@@ -1,0 +1,37 @@
+{
+  "name": "not-it",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A split-flap chore board for a shared house. Weekly rotation, check-offs, receipts.",
+  "scripts": {
+    "dev:client": "vite",
+    "dev:worker": "wrangler dev --port 8787",
+    "db:local": "wrangler d1 migrations apply not-it --local",
+    "db:remote": "wrangler d1 migrations apply not-it --remote",
+    "build": "tsc --noEmit && vite build",
+    "start": "npm run build && npm run db:local && wrangler dev --port 8787",
+    "test": "vitest run",
+    "deploy": "npm run build && npm run db:remote && wrangler deploy",
+    "test:e2e": "node e2e/run.mjs"
+  },
+  "dependencies": {
+    "@fontsource/barlow": "^5.3.0",
+    "@fontsource/barlow-condensed": "^5.3.0",
+    "hono": "^4.13.16",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261106.1",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "playwright": "^1.65.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.6",
+    "vitest": "^5.1.0",
+    "wrangler": "^4.158.0"
+  }
+}

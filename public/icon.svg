@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#12110e"/>
+  <g font-family="Arial Narrow, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="176" text-anchor="middle">
+    <rect x="72" y="136" width="172" height="240" rx="18" fill="#2a2720"/>
+    <rect x="268" y="136" width="172" height="240" rx="18" fill="#2a2720"/>
+    <text x="158" y="319" fill="#ffb000">N</text>
+    <text x="354" y="319" fill="#f4ead2">I</text>
+  </g>
+  <rect x="72" y="252" width="172" height="8" fill="#12110e"/>
+  <rect x="268" y="252" width="172" height="8" fill="#12110e"/>
+</svg>
