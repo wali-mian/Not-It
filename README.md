@@ -6,7 +6,7 @@ A split-flap chore board for a shared house. Three chores, four roommates, one a
 
 ## What it does
 
-- **Rotates itself.** Each Monday (Toronto time) milk, trash and broom move one seat along. Everyone does every chore once and gets one week off in every 4-week cycle.
+- **Rotates itself.** Each Sunday at 12:00 a.m. (Toronto time) milk, trash and broom move one seat along. Everyone does every chore once and gets one week off in every 4-week cycle.
 - **Check-offs everyone can see.** Tick a chore and it flips on the board, with who ticked it and when. Phones sync on a 20-second poll and whenever the app is reopened.
 - **Covers.** Away for a week? Someone taps "I'll cover". It only changes that week, and they get the credit.
 - **Receipts.** A leaderboard of done, missed, late and covered chores, plus week-by-week history. Unfinished chores count as missed when the week ends, unless someone marks them done late during the following week.

@@ -42,10 +42,9 @@ export function localDate(now: Date, timeZone: string = TIME_ZONE): string {
   }).format(now);
 }
 
-/** Weeks run Monday to Sunday. */
+/** Weeks run Sunday to Saturday. */
 export function weekOf(date: string): string {
-  const day = new Date(toUtcMs(date)).getUTCDay();
-  return addDays(date, -((day + 6) % 7));
+  return addDays(date, -new Date(toUtcMs(date)).getUTCDay());
 }
 
 // ---- Rotation ----

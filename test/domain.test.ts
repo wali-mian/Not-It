@@ -2,27 +2,27 @@ import { describe, expect, it } from 'vitest';
 import { CHORES, computeStats, localDate, rotationFor, weekIndex, weekOf, type ScoreRow } from '../shared/domain';
 
 describe('week math', () => {
-  it('treats Monday as the start and Sunday as the end', () => {
-    expect(weekOf('2026-11-02')).toBe('2026-11-02');
-    expect(weekOf('2026-11-06')).toBe('2026-11-02');
-    expect(weekOf('2026-11-08')).toBe('2026-11-02');
-    expect(weekOf('2026-11-09')).toBe('2026-11-09');
+  it('treats Sunday as the start and Saturday as the end', () => {
+    expect(weekOf('2026-11-01')).toBe('2026-11-01');
+    expect(weekOf('2026-11-06')).toBe('2026-11-01');
+    expect(weekOf('2026-11-07')).toBe('2026-11-01');
+    expect(weekOf('2026-11-08')).toBe('2026-11-08');
   });
 
   it('flips the week at midnight Toronto time, not UTC', () => {
-    // 11:30pm Sunday in Toronto is already Monday 04:30 in UTC.
-    const sundayNight = new Date('2026-11-09T04:30:00Z');
-    expect(localDate(sundayNight)).toBe('2026-11-08');
-    expect(weekOf(localDate(sundayNight))).toBe('2026-11-02');
+    // 11:30pm Saturday in Toronto is already Sunday 04:30 in UTC.
+    const saturdayNight = new Date('2026-11-08T04:30:00Z');
+    expect(localDate(saturdayNight)).toBe('2026-11-07');
+    expect(weekOf(localDate(saturdayNight))).toBe('2026-11-01');
   });
 
   it('counts whole weeks across both daylight saving changes', () => {
-    expect(weekIndex('2026-02-23', '2026-03-16')).toBe(3);
-    expect(weekIndex('2026-10-26', '2026-11-09')).toBe(2);
+    expect(weekIndex('2026-03-01', '2026-03-22')).toBe(3);
+    expect(weekIndex('2026-10-25', '2026-11-08')).toBe(2);
   });
 
   it('crosses year boundaries', () => {
-    expect(weekOf('2027-01-01')).toBe('2026-12-28');
+    expect(weekOf('2027-01-01')).toBe('2026-12-27');
   });
 });
 
@@ -68,7 +68,7 @@ describe('scores', () => {
     late: false,
     ...overrides,
   });
-  const current = '2026-11-02';
+  const current = '2026-11-01';
   const statsFor = (rows: ScoreRow[]) => computeStats([1], rows, current)[0];
 
   it('does not count an open chore this week as missed', () => {
@@ -77,29 +77,29 @@ describe('scores', () => {
   });
 
   it('counts an unfinished past chore as missed', () => {
-    expect(statsFor([row('2026-10-26', { completedAt: null })])).toMatchObject({ missed: 1, reliability: 0 });
+    expect(statsFor([row('2026-10-25', { completedAt: null })])).toMatchObject({ missed: 1, reliability: 0 });
   });
 
   it('breaks the streak at the most recent miss', () => {
     const stats = statsFor([
-      row('2026-10-26'),
-      row('2026-10-19'),
-      row('2026-10-12', { completedAt: null }),
-      row('2026-10-05'),
+      row('2026-10-25'),
+      row('2026-10-18'),
+      row('2026-10-11', { completedAt: null }),
+      row('2026-10-04'),
     ]);
     expect(stats).toMatchObject({ streak: 2, done: 3, missed: 1, reliability: 75 });
   });
 
   it('credits a cover to the person who took it', () => {
-    const stats = computeStats([1, 2], [row('2026-10-26', { assigneeId: 2, scheduledId: 1 })], current);
+    const stats = computeStats([1, 2], [row('2026-10-25', { assigneeId: 2, scheduledId: 1 })], current);
     expect(stats.find((s) => s.memberId === 2)).toMatchObject({ done: 1, covers: 1 });
     expect(stats.find((s) => s.memberId === 1)).toMatchObject({ done: 0, covers: 0, reliability: null });
   });
 
   it('ranks the most reliable first, with nothing-due-yet last', () => {
     const rows = [
-      row('2026-10-26', { assigneeId: 1, completedAt: null }),
-      row('2026-10-26', { assigneeId: 2 }),
+      row('2026-10-25', { assigneeId: 1, completedAt: null }),
+      row('2026-10-25', { assigneeId: 2 }),
     ];
     expect(computeStats([3, 1, 2], rows, current).map((s) => s.memberId)).toEqual([2, 1, 3]);
   });

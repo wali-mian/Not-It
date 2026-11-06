@@ -5,7 +5,7 @@ import { createFakeD1 } from './fake-d1';
 
 const NAMES = ['Wali', 'Ali', 'Sam', 'Omar'];
 const CODE = 'haven-204';
-const week1 = '2026-11-02';
+const week1 = '2026-11-01';
 
 let now: Date;
 let env: { DB: D1Database };
@@ -125,9 +125,9 @@ describe('auth', () => {
 describe('the schedule', () => {
   it('assigns this week from the roster order', async () => {
     const board = await state();
-    expect(board.week).toEqual({ start: week1, end: '2026-11-08', daysLeft: 3 });
+    expect(board.week).toEqual({ start: week1, end: '2026-11-07', daysLeft: 2 });
     expect([assigneeOf(board, 'milk'), assigneeOf(board, 'trash'), assigneeOf(board, 'broom')]).toEqual([1, 2, 3]);
-    expect(board.upcoming[0].weekStart).toBe('2026-11-09');
+    expect(board.upcoming[0].weekStart).toBe('2026-11-08');
   });
 
   it('rotates by itself when the week turns over', async () => {
@@ -136,12 +136,12 @@ describe('the schedule', () => {
     expect([assigneeOf(board, 'milk'), assigneeOf(board, 'trash'), assigneeOf(board, 'broom')]).toEqual([2, 3, 4]);
   });
 
-  it('turns over at Toronto midnight on Sunday night', async () => {
-    now = new Date('2026-11-09T04:30:00Z');
+  it('turns over at Toronto midnight going into Sunday', async () => {
+    now = new Date('2026-11-08T04:30:00Z');
     expect((await state()).week.start).toBe(week1);
     expect((await state()).week.daysLeft).toBe(1);
-    now = new Date('2026-11-09T05:30:00Z');
-    expect((await state()).week.start).toBe('2026-11-09');
+    now = new Date('2026-11-08T05:30:00Z');
+    expect((await state()).week.start).toBe('2026-11-08');
   });
 
   it('matches what the upcoming view promised', async () => {
@@ -155,7 +155,7 @@ describe('the schedule', () => {
   it('fills in weeks nobody opened and scores them as missed', async () => {
     now = new Date('2026-11-24T12:00:00Z');
     const board = await state();
-    expect(board.history.map((week) => week.weekStart)).toEqual(['2026-11-16', '2026-11-09', week1]);
+    expect(board.history.map((week) => week.weekStart)).toEqual(['2026-11-15', '2026-11-08', week1]);
     const totalMissed = board.stats.reduce((sum, member) => sum + member.missed, 0);
     expect(totalMissed).toBe(9);
   });
@@ -211,7 +211,7 @@ describe('checking off', () => {
   it('rejects unknown chores and actions, and future weeks', async () => {
     expect((await act(week1, 'dishes', 'complete')).status).toBe(404);
     expect((await act(week1, 'milk', 'explode')).status).toBe(404);
-    expect((await act('2026-11-09', 'milk', 'complete')).status).toBe(409);
+    expect((await act('2026-11-08', 'milk', 'complete')).status).toBe(409);
   });
 });
 
