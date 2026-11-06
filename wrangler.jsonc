@@ -12,7 +12,7 @@
     {
       "binding": "DB",
       "database_name": "not-it",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "b83c0b48-642c-4bda-9d80-891025ff6ede",
       "migrations_dir": "migrations"
     }
   ],
