@@ -1,5 +1,7 @@
 # Not It
 
+[![CI/CD](https://github.com/wali-mian/Not-It/actions/workflows/ci.yml/badge.svg)](https://github.com/wali-mian/Not-It/actions/workflows/ci.yml)
+
 A split-flap chore board for a shared house. Three chores, four roommates, one automatic weekly rotation. Whoever's off that week is, officially, **not it**.
 
 <img src="docs/board.png" alt="The board on a phone: Milk is on Wali, Trash on Hamza, Broom on Yusuf, and Daniyal is not it" width="320">
@@ -51,11 +53,21 @@ npm test          # rules and API tests
 npm run test:e2e  # browser flow; needs an empty local database and the server running
 ```
 
+## CI/CD
+
+GitHub Actions (`.github/workflows/ci.yml`) runs on every push and pull request:
+
+1. **check**: typecheck, Vitest, production build.
+2. **e2e**: builds the app, starts `wrangler dev` on a fresh local D1 database, and runs the multi-user Playwright flow. Screenshots are saved as a build artifact.
+3. **deploy**: on `main` only, and only after both jobs pass. Applies any new D1 migrations, then deploys the Worker. Schema changes always go out as a new file in `migrations/`, never as an edit to an applied one.
+
+Deploying needs a `CLOUDFLARE_API_TOKEN` repository secret with **Workers Scripts: Edit** and **D1: Edit** permissions on the account. Without it, the deploy job skips and says why.
+
 ## Deploying your own
 
 ```bash
 npx wrangler login
-npx wrangler d1 create not-it     # paste the database_id into wrangler.jsonc
+npx wrangler d1 create not-it     # put your database_id and account_id in wrangler.jsonc
 npm run deploy
 ```
 

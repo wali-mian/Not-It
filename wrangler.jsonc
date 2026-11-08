@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "not-it",
+  "account_id": "c17d28fbcfe6ddded8d7bbe0af7626c1",
   "main": "worker/index.ts",
   "compatibility_date": "2026-11-01",
   "assets": {
