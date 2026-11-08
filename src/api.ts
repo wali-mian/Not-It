@@ -25,7 +25,7 @@ async function request<T>(path: string, init?: { method?: string; body?: unknown
   return data as T;
 }
 
-export type ChoreAction = 'complete' | 'undo' | 'cover';
+export type ChoreAction = 'complete' | 'undo' | 'cover' | 'uncover';
 
 export const api = {
   status: () => request<{ isSetUp: boolean; houseName: string | null }>('/api/status'),

@@ -321,6 +321,12 @@ export function createApp(clock: () => Date = () => new Date()) {
         .bind(meId, week, chore)
         .run();
       if (meta.changes === 0) return c.json({ error: 'That one is already done.' }, 409);
+    } else if (action === 'uncover') {
+      const { meta } = await db
+        .prepare(`UPDATE assignments SET assignee_id = scheduled_id ${where} AND completed_at IS NULL`)
+        .bind(week, chore)
+        .run();
+      if (meta.changes === 0) return c.json({ error: 'That one is already done. Undo it first.' }, 409);
     } else {
       return c.json({ error: 'Unknown action.' }, 404);
     }

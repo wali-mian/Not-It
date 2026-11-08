@@ -39,7 +39,10 @@ export function Scores({ board }: { board: BoardState }) {
                 <li key={chore.chore} className={chore.completedAt ? 'hit' : 'miss'}>
                   <ChoreIcon chore={chore.chore} />
                   <span className="sr-only">{choreLabel(chore.chore)}: </span>
-                  <span className="history-name">{nameOf(chore.assigneeId)}</span>
+                  <span className="history-name">
+                    {nameOf(chore.scheduledId)}
+                    {chore.assigneeId !== chore.scheduledId && <small> covered by {nameOf(chore.assigneeId)}</small>}
+                  </span>
                   <span className="history-status">{chore.completedAt ? (chore.late ? 'Late' : 'Done') : 'Missed'}</span>
                 </li>
               ))}

@@ -125,10 +125,11 @@ export function App() {
   function shareWeek() {
     if (!board) return;
     const nameOf = (id: number) => board.members.find((member) => member.id === id)?.name;
-    const lines = board.chores.map(
-      (chore) => `${choreLabel(chore.chore)}: ${nameOf(chore.assigneeId)}${chore.completedAt ? ' (done)' : ''}`,
-    );
-    const off = board.members.filter((member) => !board.chores.some((chore) => chore.assigneeId === member.id));
+    const lines = board.chores.map((chore) => {
+      const cover = chore.assigneeId !== chore.scheduledId ? `, covered by ${nameOf(chore.assigneeId)}` : '';
+      return `${choreLabel(chore.chore)}: ${nameOf(chore.scheduledId)}${cover}${chore.completedAt ? ' (done)' : ''}`;
+    });
+    const off = board.members.filter((member) => !board.chores.some((chore) => chore.scheduledId === member.id));
     if (off.length > 0) lines.push(`Not it: ${off.map((member) => member.name).join(', ')}`);
     void share(`Week of ${shortDate(board.week.start)}\n${lines.join('\n')}\n${location.origin}`);
   }

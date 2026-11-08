@@ -30,6 +30,9 @@ function Hero({ board }: { board: BoardState }) {
   const mine = board.chores.filter((chore) => chore.assigneeId === board.meId);
   const open = mine.filter((chore) => !chore.completedAt);
   const allDone = board.chores.every((chore) => chore.completedAt);
+  const coveredForMe = board.chores.filter(
+    (chore) => chore.scheduledId === board.meId && chore.assigneeId !== board.meId,
+  );
 
   let lead: string;
   let flaps: string;
@@ -46,6 +49,13 @@ function Hero({ board }: { board: BoardState }) {
     flaps = 'Done';
     tone = 'done';
     detail = allDone ? 'Whole house is done. Rare scenes.' : 'Your part is handled. Feel free to judge the others.';
+  } else if (coveredForMe.length > 0) {
+    lead = "You're";
+    flaps = 'Covered';
+    tone = 'done';
+    detail = coveredForMe
+      .map((chore) => `${nameOf(board, chore.assigneeId)} ${chore.completedAt ? 'handled' : 'has'} ${choreLabel(chore.chore).toLowerCase()} for you.`)
+      .join(' ');
   } else {
     const next = nextTurn(board);
     lead = "You're";
@@ -68,6 +78,7 @@ function ChoreRow({ board, chore, onAction, onNudge, pending }: { board: BoardSt
   const done = Boolean(chore.completedAt);
   const busy = pending === keyOf(chore);
   const covered = chore.assigneeId !== chore.scheduledId;
+  const coverer = isMine ? 'you' : nameOf(board, chore.assigneeId);
   const label = choreLabel(chore.chore);
   const meta = CHORES.find((item) => item.id === chore.chore)!;
 
@@ -77,8 +88,18 @@ function ChoreRow({ board, chore, onAction, onNudge, pending }: { board: BoardSt
         <span className="row-chore"><ChoreIcon chore={chore.chore} /> {label}</span>
         <span className={`lamp ${done ? 'on' : ''}`}>{done ? 'Done' : 'Open'}</span>
       </div>
-      <SplitFlap text={nameOf(board, chore.assigneeId)} tone={done ? 'done' : isMine ? 'mine' : 'default'} />
-      {covered && <p className="row-note">Covering for {nameOf(board, chore.scheduledId)}</p>}
+      {/* The board always shows whose turn it was. A cover is noted underneath, and the coverer gets the credit. */}
+      <SplitFlap text={nameOf(board, chore.scheduledId)} tone={done ? 'done' : isMine && !covered ? 'mine' : 'default'} />
+      {covered && (
+        <div className="row-cover">
+          <p className="row-note">Covered by <strong>{coverer}</strong></p>
+          {!done && (
+            <button className="link" disabled={busy} onClick={() => onAction(chore, 'uncover')} aria-label={`Undo cover on ${label}`}>
+              Undo cover
+            </button>
+          )}
+        </div>
+      )}
       {done ? (
         <div className="row-foot">
           <p className="row-note">
@@ -94,7 +115,9 @@ function ChoreRow({ board, chore, onAction, onNudge, pending }: { board: BoardSt
       ) : (
         <div className="row-actions">
           <button className="button grow" disabled={busy} onClick={() => onAction(chore, 'complete')} aria-label={`Mark ${label} done`}>Mark done</button>
-          <button className="button" disabled={busy} onClick={() => onAction(chore, 'cover')} aria-label={`Cover ${label}`}>I'll cover</button>
+          {!covered && (
+            <button className="button" disabled={busy} onClick={() => onAction(chore, 'cover')} aria-label={`Cover ${label}`}>I'll cover</button>
+          )}
           <button className="button" onClick={() => onNudge(chore)} aria-label={`Nudge about ${label}`}>Nudge</button>
         </div>
       )}
@@ -103,7 +126,7 @@ function ChoreRow({ board, chore, onAction, onNudge, pending }: { board: BoardSt
 }
 
 export function Board({ board, onAction, onNudge, onShareWeek, pending }: Props) {
-  const off = board.members.filter((member) => !board.chores.some((chore) => chore.assigneeId === member.id));
+  const off = board.members.filter((member) => !board.chores.some((chore) => chore.scheduledId === member.id));
   return (
     <>
       <div className="week-line">
@@ -119,7 +142,10 @@ export function Board({ board, onAction, onNudge, onShareWeek, pending }: Props)
           <ul>
             {board.looseEnds.map((chore) => (
               <li key={keyOf(chore)}>
-                <span><strong>{choreLabel(chore.chore)}</strong> · {nameOf(board, chore.assigneeId)}</span>
+                <span>
+                  <strong>{choreLabel(chore.chore)}</strong> · {nameOf(board, chore.scheduledId)}
+                  {chore.assigneeId !== chore.scheduledId && <span className="muted"> (covered by {nameOf(board, chore.assigneeId)})</span>}
+                </span>
                 <button className="button small" disabled={pending === keyOf(chore)} onClick={() => onAction(chore, 'complete')} aria-label={`Mark last week's ${choreLabel(chore.chore)} done`}>It got done</button>
               </li>
             ))}

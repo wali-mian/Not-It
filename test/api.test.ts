@@ -231,6 +231,18 @@ describe('covering', () => {
     expect((await act(week1, 'trash', 'cover')).status).toBe(409);
   });
 
+  it('can be undone, handing it back to whoever was scheduled', async () => {
+    await act(week1, 'trash', 'cover');
+    expect((await act(week1, 'trash', 'uncover')).status).toBe(200);
+    expect((await state()).chores.find((c) => c.chore === 'trash')).toMatchObject({ scheduledId: 2, assigneeId: 2 });
+  });
+
+  it('cannot be undone once the chore is done', async () => {
+    await act(week1, 'trash', 'cover');
+    await act(week1, 'trash', 'complete');
+    expect((await act(week1, 'trash', 'uncover')).status).toBe(409);
+  });
+
   it('does not change next week', async () => {
     await act(week1, 'trash', 'cover');
     now = new Date('2026-11-09T12:00:00Z');

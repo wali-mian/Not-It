@@ -77,13 +77,29 @@ await hamza.page.evaluate(() => document.dispatchEvent(new Event('visibilitychan
 await hamza.page.getByText(/Done/).first().waitFor();
 assert.equal(await hamza.page.getByRole('button', { name: 'Undo Milk' }).count(), 1, 'Hamza should see the milk tick');
 
-// Cover: Daniyal takes Yusuf's broom, and stops being not it.
+// Cover: Daniyal takes Yusuf's broom. The board still shows Yusuf, with the cover noted underneath.
 await daniyal.page.getByRole('button', { name: 'Cover Broom' }).click();
-await daniyal.page.getByText('Covering for Yusuf').waitFor();
+await daniyal.page.getByText('Covered by you').waitFor();
+assert.equal(await daniyal.page.getByLabel('Yusuf', { exact: true }).count(), 1, 'broom row should still show Yusuf');
+await daniyal.page.getByRole('button', { name: 'Undo cover on Broom' }).click();
+await daniyal.page.getByRole('button', { name: 'Cover Broom' }).waitFor();
+await daniyal.page.getByRole('button', { name: 'Cover Broom' }).click();
+await daniyal.page.getByText('Covered by you').waitFor();
 await settle(daniyal.page);
 await shot(daniyal.page, '06-board-cover');
 await daniyal.page.getByRole('button', { name: 'Swept the floors' }).click();
 await daniyal.page.getByRole('button', { name: 'Undo Broom' }).waitFor();
+
+// Yusuf sees he's covered, and who by.
+const yusuf = await newUser();
+await yusuf.page.goto('/');
+await yusuf.page.getByLabel('House code').fill('haven-204');
+await yusuf.page.getByRole('button', { name: 'Open the board' }).click();
+await yusuf.page.getByRole('button', { name: 'Yusuf' }).click();
+await yusuf.page.getByText('Daniyal handled broom for you.').waitFor();
+await yusuf.page.getByText('Covered by').getByText('Daniyal').waitFor();
+await settle(yusuf.page);
+await shot(yusuf.page, '06b-board-covered-for-me');
 
 // Undo.
 await wali.page.getByRole('button', { name: 'Undo Milk' }).click();

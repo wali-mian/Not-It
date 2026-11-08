@@ -140,6 +140,10 @@ button, input { font: inherit; color: inherit; }
 .row-foot { display: flex; justify-content: space-between; align-items: center; margin: 4px 0 -8px; }
 .row-note { font-size: 14px; color: var(--muted); margin-top: 8px; }
 .row-foot .row-note { margin-top: 0; }
+.row-cover { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 2px 0 -8px; }
+.row-note strong { color: var(--ink); font-weight: 600; }
+.muted { color: var(--muted); }
+.history-name small { color: var(--muted); font-size: 13px; margin-left: 4px; }
 
 /* ---- Controls ---- */
 .button {
